@@ -212,3 +212,34 @@ func (mod *OpenweathermapBee) TriggerWeatherInformationEvent(v *owm.Weather) {
 	}
 	mod.evchan <- weather
 }
+
+// TriggerCurrentUvIndexEvent triggers all current uv index events
+func (mod *OpenweathermapBee) TriggerCurrentUvIndexEvent(uv owm.UVIndexInfo) {
+	ev := bees.Event{
+		Bee:  mod.Name(),
+		Name: "current_uv_index",
+		Options: []bees.Placeholder{
+			{
+				Name:  "uv_index",
+				Type:  "[]float64",
+				Value: uv.UVIndex,
+			},
+			{
+				Name:  "mgc",
+				Type:  "string",
+				Value: uv.MGC,
+			},
+			{
+				Name:  "risk",
+				Type:  "string",
+				Value: uv.Risk,
+			},
+			{
+				Name:  "recommended_protection",
+				Type:  "string",
+				Value: uv.RecommendedProtection,
+			},
+		},
+	}
+	mod.evchan <- ev
+}

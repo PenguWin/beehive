@@ -269,6 +269,33 @@ func (factory *OpenweathermapBeeFactory) Events() []bees.EventDescriptor {
 				},
 			},
 		},
+		{
+			Namespace:   factory.Name(),
+			Name:        "current_uv_index",
+			Description: "provides information on the current uv data",
+			Options: []bees.PlaceholderDescriptor{
+				{
+					Name:        "uv_index",
+					Type:        "float64",
+					Description: "holds the range of the index",
+				},
+				{
+					Name:        "mgc",
+					Type:        "string",
+					Description: "represents the media graphic color",
+				},
+				{
+					Name:        "risk",
+					Type:        "string",
+					Description: "risk of harm from unprotected sun exposure",
+				},
+				{
+					Name:        "recommended_protection",
+					Type:        "string",
+					Description: "contains information on what a person should do",
+				},
+			},
+		},
 	}
 	return events
 }
@@ -285,6 +312,25 @@ func (factory *OpenweathermapBeeFactory) Actions() []bees.ActionDescriptor {
 					Name:        "location",
 					Description: "desired location",
 					Type:        "string",
+					Mandatory:   true,
+				},
+			},
+		},
+		{
+			Namespace:   factory.Name(),
+			Name:        "get_current_uv_index",
+			Description: "fetch current uv index information",
+			Options: []bees.PlaceholderDescriptor{
+				{
+					Name:        "longitude",
+					Description: "desired longitude",
+					Type:        "float64",
+					Mandatory:   true,
+				},
+				{
+					Name:        "latitude",
+					Description: "desired latitude",
+					Type:        "float64",
 					Mandatory:   true,
 				},
 			},

@@ -33,6 +33,7 @@ type OpenweathermapBee struct {
 	bees.Bee
 
 	current *owm.CurrentWeatherData
+	uv      *owm.UV
 
 	unit     string
 	language string
@@ -58,6 +59,34 @@ func (mod *OpenweathermapBee) Action(action bees.Action) []bees.Placeholder {
 
 		mod.TriggerCurrentWeatherEvent()
 
+	case "get_current_uv_index":
+		var longitude float64
+		var latitude float64
+		action.Options.Bind("longitude", &longitude)
+		action.Options.Bind("latitude", &latitude)
+
+		// FIXME: Fetch request fails here...
+		// Error Message:
+		// ERRO[0007] [Openweathermapbee]: Failed to fetch current uv: invalid
+		// character 'L' looking for beginning of value
+		err := mod.uv.Current(&owm.Coordinates{
+			Longitude: longitude,
+			Latitude:  latitude,
+		})
+		if err != nil {
+			mod.LogErrorf("Failed to fetch current uv: %v", err)
+			return nil
+		}
+
+		infos, err := mod.uv.UVInformation()
+		if err != nil {
+			mod.LogErrorf("Failed to fetch UV Index Info: %v", err)
+			return nil
+		}
+		for _, v := range infos {
+			mod.TriggerCurrentUvIndexEvent(v)
+		}
+
 	default:
 		panic("Unknown action triggered in " + mod.Name() + ": " + action.Name)
 	}
@@ -69,12 +98,18 @@ func (mod *OpenweathermapBee) Action(action bees.Action) []bees.Placeholder {
 func (mod *OpenweathermapBee) Run(eventChan chan bees.Event) {
 	mod.evchan = eventChan
 
-	current, err := owm.NewCurrent(mod.unit, mod.language, mod.key)
+	var err error
+	mod.current, err = owm.NewCurrent(mod.unit, mod.language, mod.key)
 	if err != nil {
 		mod.LogErrorf("Failed to create new current service: %v", err)
 		return
 	}
-	mod.current = current
+
+	mod.uv, err = owm.NewUV(mod.key)
+	if err != nil {
+		mod.LogErrorf("Failed to create new uv service")
+		return
+	}
 
 	select {
 	case <-mod.SigChan:
