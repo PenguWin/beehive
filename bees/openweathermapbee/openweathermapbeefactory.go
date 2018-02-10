@@ -276,7 +276,7 @@ func (factory *OpenweathermapBeeFactory) Events() []bees.EventDescriptor {
 			Options: []bees.PlaceholderDescriptor{
 				{
 					Name:        "uv_index",
-					Type:        "float64",
+					Type:        "[]float64",
 					Description: "holds the range of the index",
 				},
 				{
